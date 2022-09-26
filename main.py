@@ -1,3 +1,4 @@
+from operator import le
 import random
 
 
@@ -31,6 +32,8 @@ try:
 
     state = 1
     print("Welcome to the Hangman game")
+
+    usedLetter = set()
     while True:
         if state == 1:
             print("   _____ \n"
@@ -86,12 +89,20 @@ try:
                 randomWord = random.choice(wordList)
                 randomWordMap = convertWord(randomWord)
                 wordProgress = ""
+                usedLetter.clear()
                 for i in range(len(randomWord)):
                     wordProgress += "_"
                 continue
             elif continueGame == "n":
                 print("Thanks for playing the game")
                 break
+        
+        if len(usedLetter) != 0:
+            allLetter = ""
+            for letter in sorted(usedLetter):
+                allLetter += letter 
+                allLetter += " "
+            print("You have used: " + allLetter)
 
         print(wordProgress)
         print()
@@ -104,6 +115,7 @@ try:
                 state = 1
                 randomWordMap = random.choice(wordList)
                 wordProgress = ""
+                usedLetter = set()
                 for i in range(len(randomWordMap)):
                     wordProgress += "_"
                 continue
@@ -115,12 +127,19 @@ try:
                 break
     
         userInput = input("Please enter a character: ")
-        userInput = userInput.strip()
+        userInput = userInput.strip().lower()
 
         if len(userInput) != 1:
             print("Invalid input, try another character (you will be punished for it)")
             state += 1
             continue
+
+        if userInput in usedLetter:
+            print("You already use this letter, try another one")
+            state += 1
+            continue
+        else:
+            usedLetter.add(userInput)
 
         if userInput in randomWordMap:
             indexList = randomWordMap[userInput]
@@ -128,7 +147,8 @@ try:
                 wordProgress = wordProgress[:index] + userInput + wordProgress[index + 1:]
             randomWordMap.pop(userInput)
         else:
-            print("Wrong guess")
+            print()
+            print("Wrong")
             state += 1
             continue
 
